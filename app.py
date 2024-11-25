@@ -62,7 +62,7 @@ class InteractiveImageApp:
         with st.sidebar:
             # Add company image
             # Update the path
-            st.image("assets/logo_KRK.png", use_column_width=True)
+            st.image("assets/logo_KRK.png", use_container_width=True)
             st.markdown(
                 "<h2 style='color: var(--highlight-text-color2);'>PhotoShoot Options</h2>", unsafe_allow_html=True)
 
