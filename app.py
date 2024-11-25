@@ -207,7 +207,7 @@ class InteractiveImageApp:
         try:
             # Create the interactive canvas
             self.canvas_result = st_canvas(
-                ill_color="rgba(255, 165, 0, 0.3)",  # Fixed fill color with some opacity
+                fill_color="rgba(255, 165, 0, 0.3)",  # Fixed fill color with some opacity
                 stroke_width=st.session_state.stroke_width,
                 stroke_color="#FFFFFF",
                 background_image=resized_image,
