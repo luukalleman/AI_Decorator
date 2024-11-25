@@ -175,50 +175,56 @@ class InteractiveImageApp:
             st.warning("No image is loaded for the canvas.")
             return
 
-        # Debugging: Check image properties
+        # Debugging: Check original image size
         original_width, original_height = st.session_state.current_image.size
         st.write(f"Original image size: {original_width}x{original_height}")
 
-        # Set desired canvas width and calculate height
-        desired_width = 1000  # Adjust this as needed
+        # Set desired canvas width and calculate corresponding height
+        desired_width = 1000  # Adjust as needed
         scaling_factor = desired_width / original_width
         canvas_width = desired_width
         canvas_height = int(original_height * scaling_factor)
 
-        # Debugging: Check resized canvas dimensions
-        st.write(f"Resized canvas size: {canvas_width}x{canvas_height}")
+        # Debugging: Confirm calculated canvas dimensions
+        st.write(f"Canvas size: {canvas_width}x{canvas_height}")
 
-        # Resize the current image for display on the canvas
+        # Resize the current image for the canvas
         try:
             resized_image = st.session_state.current_image.resize((canvas_width, canvas_height))
+            # Convert to RGBA (needed for st_canvas)
+            resized_image = resized_image.convert("RGBA")
         except Exception as e:
             st.error(f"Error resizing image: {e}")
             return
 
-        # Generate a unique key for the canvas based on the image update counter
+        # Display resized image as a preview (for debugging)
+        st.image(resized_image, caption="Preview of Image for Canvas", use_column_width=True)
+
+        # Generate a unique key for the canvas based on image updates
         canvas_key = f"canvas_{st.session_state.image_update_counter}"
 
-        # Debugging: Ensure resized image is created
-        st.image(resized_image, caption="Resized Image Preview", use_column_width=True)
+        # Debugging: Check if resized image is passed to the canvas
+        try:
+            # Create the interactive canvas
+            self.canvas_result = st_canvas(
+                fill_color="#FFFFFF",  # Transparent fill color for drawing
+                stroke_width=st.session_state.stroke_width,
+                stroke_color="#FFFFFF",
+                background_image=resized_image,
+                update_streamlit=True,  # Enable real-time updates
+                height=canvas_height,
+                width=canvas_width,
+                drawing_mode="freedraw",
+                key=canvas_key,
+            )
 
-        # Create the drawable canvas
-        self.canvas_result = st_canvas(
-            stroke_width=st.session_state.stroke_width,
-            stroke_color="#FFFFFF",
-            background_image=resized_image,
-            update_streamlit=True,  # Enable real-time updates
-            height=canvas_height,
-            width=canvas_width,
-            drawing_mode="freedraw",
-            key=canvas_key,
-        )
-
-        # Add a debug message if the canvas is ready
-        if self.canvas_result:
-            st.info("Canvas loaded successfully. Start drawing!")
-        else:
-            st.error("Canvas failed to initialize.")
-
+            if self.canvas_result:
+                st.info("Canvas loaded successfully. Start drawing!")
+            else:
+                st.error("Canvas failed to initialize.")
+        except Exception as e:
+            st.error(f"Error initializing canvas: {e}")
+            
     def select_action(self):
         if not st.session_state.has_generated_image:
             st.session_state.action = "CompleteMakeOverAI"
