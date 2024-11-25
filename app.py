@@ -19,12 +19,15 @@ API_KEY = st.secrets["STABILITY_AI"]
 # Set the app to wide mode
 st.set_page_config(layout="wide")
 
+
 def load_css():
     with open("style.css") as f:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
+
 # Call this function at the beginning of your app
 load_css()
+
 
 class InteractiveImageApp:
     def __init__(self, api_key):
@@ -58,16 +61,21 @@ class InteractiveImageApp:
     def setup_sidebar(self):
         with st.sidebar:
             # Add company image
-            st.image("assets/logo_KRK.png", use_column_width=True)  # Update the path
-            st.markdown("<h2 style='color: var(--highlight-text-color2);'>PhotoShoot Options</h2>", unsafe_allow_html=True)
+            # Update the path
+            st.image("assets/logo_KRK.png", use_column_width=True)
+            st.markdown(
+                "<h2 style='color: var(--highlight-text-color2);'>PhotoShoot Options</h2>", unsafe_allow_html=True)
 
             # Show "Upload Image" or "Start New Photoshoot" based on the current state
             if st.session_state.current_image is None:
-                st.markdown("<h5 style='color: var(--highlight-text-color2);'>Upload the image here:</h5>", unsafe_allow_html=True)
+                st.markdown(
+                    "<h5 style='color: var(--highlight-text-color2);'>Upload the image here:</h5>", unsafe_allow_html=True)
                 # Upload image and save it in session state
-                uploaded_file = st.file_uploader("Upload an image:", type=["png", "jpg", "jpeg"], label_visibility='collapsed')
+                uploaded_file = st.file_uploader("Upload an image:", type=[
+                                                 "png", "jpg", "jpeg"], label_visibility='collapsed')
                 if uploaded_file is not None:
-                    st.session_state.uploaded_image = uploaded_file  # Store in session state for use in run()
+                    # Store in session state for use in run()
+                    st.session_state.uploaded_image = uploaded_file
             else:
                 # Show a "Start New Photoshoot" button
                 if st.button("Start New Photoshoot"):
@@ -85,7 +93,8 @@ class InteractiveImageApp:
 
             # Add buttons for other functionalities if an image is uploaded
             if st.session_state.current_image is not None:
-                st.markdown("<hr>", unsafe_allow_html=True)  # Separator for better organization
+                # Separator for better organization
+                st.markdown("<hr>", unsafe_allow_html=True)
 
                 if st.button("Refresh Canvas"):
                     st.session_state.image_update_counter += 1
@@ -96,7 +105,8 @@ class InteractiveImageApp:
                         # Push current image to redo stack
                         if 'redo_stack' not in st.session_state:
                             st.session_state.redo_stack = []
-                        st.session_state.redo_stack.append(st.session_state.current_image.copy())
+                        st.session_state.redo_stack.append(
+                            st.session_state.current_image.copy())
 
                         # Undo last change
                         self.undo_last_change()
@@ -107,7 +117,8 @@ class InteractiveImageApp:
                         redo_image = st.session_state.redo_stack.pop()
 
                         # Push current image to the history
-                        st.session_state.image_history.append(st.session_state.current_image.copy())
+                        st.session_state.image_history.append(
+                            st.session_state.current_image.copy())
 
                         # Restore the redo image
                         st.session_state.current_image = redo_image
@@ -119,7 +130,8 @@ class InteractiveImageApp:
                 if st.button("Download Image"):
                     if self.canvas_result and self.canvas_result.image_data is not None:
                         # Convert canvas data to image
-                        canvas_image = Image.fromarray(self.canvas_result.image_data.astype('uint8'), 'RGBA')
+                        canvas_image = Image.fromarray(
+                            self.canvas_result.image_data.astype('uint8'), 'RGBA')
                         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                         save_path = f"canvas_image_{timestamp}.png"
                         canvas_image.save(save_path)
@@ -131,13 +143,15 @@ class InteractiveImageApp:
         os.makedirs(self.results_dir, exist_ok=True)
 
     def run(self):
-        st.markdown("<h1 style='color: var(--highlight-text-color);'>Furniture AI</h1>", unsafe_allow_html=True)
+        st.markdown(
+            "<h1 style='color: var(--highlight-text-color);'>Furniture AI</h1>", unsafe_allow_html=True)
 
         # Handle image upload
         if 'uploaded_image' in st.session_state and st.session_state.uploaded_image:
             if st.session_state.bg_image_uploaded != st.session_state.uploaded_image:
                 # Open the uploaded image
-                uploaded_image = Image.open(st.session_state.uploaded_image).convert('RGB')
+                uploaded_image = Image.open(
+                    st.session_state.uploaded_image).convert('RGB')
                 # Update session state with the new image
                 st.session_state.current_image = uploaded_image.copy()
                 st.session_state.bg_image_uploaded = st.session_state.uploaded_image
@@ -152,7 +166,8 @@ class InteractiveImageApp:
         if st.session_state.current_image:
             # Show the drawable canvas
             self.display_canvas()
-            st.markdown("<h1 style='color: var(--highlight-text-color);'>Select Action:</h1>", unsafe_allow_html=True)
+            st.markdown(
+                "<h1 style='color: var(--highlight-text-color);'>Select Action:</h1>", unsafe_allow_html=True)
             self.select_action()
             self.handle_image_generation()
         else:
@@ -169,6 +184,7 @@ class InteractiveImageApp:
             st.experimental_rerun()
         else:
             st.warning("No changes to undo.")
+
     def display_canvas(self):
         # Use the static image path
         static_image_path = "assets/logo_KRK.png"
@@ -180,7 +196,7 @@ class InteractiveImageApp:
 
         # Load the static image
         try:
-            static_image = Image.open(static_image_path).convert("RGBA")
+            static_image = Image.open(static_image_path).convert("RGB")
         except Exception as e:
             st.error(f"Error loading static image: {e}")
             return
@@ -196,14 +212,16 @@ class InteractiveImageApp:
         resized_image = static_image.resize((canvas_width, canvas_height))
 
         # Debug: Show the static image preview
-        st.image(resized_image, caption="Static Image for Canvas", use_column_width=True)
+        st.image(resized_image, caption="Static Image for Canvas",
+                 use_column_width=True)
 
         # Generate a unique key for the canvas
         canvas_key = "static_image_canvas"
 
         # Add the canvas
         self.canvas_result = st_canvas(
-            fill_color="rgba(255, 255, 255, 0.3)",  # Transparent fill color for drawing
+            # Transparent fill color for drawing
+            fill_color="rgba(255, 255, 255, 0.3)",
             stroke_width=st.session_state.stroke_width,
             stroke_color="#FFFFFF",
             background_image=resized_image,  # Use the static image as the background
@@ -226,13 +244,17 @@ class InteractiveImageApp:
             st.session_state.selected_item = "CompleteMakeOverAI"
         else:
             action_options = ["Add Item", "Erase"]
-            st.session_state.action = st.radio("Choose an action:", action_options)
+            st.session_state.action = st.radio(
+                "Choose an action:", action_options)
 
             if st.session_state.action == "Add Item":
-                st.markdown("<h1 style='color: var(--highlight-text-color);'>Select Item to Add:</h1>", unsafe_allow_html=True)
+                st.markdown(
+                    "<h1 style='color: var(--highlight-text-color);'>Select Item to Add:</h1>", unsafe_allow_html=True)
 
-                item_list = [item for item in item_prompts.keys() if item != "CompleteMakeOverAI"]
-                st.session_state.selected_item = st.selectbox("Choose an item to add:", item_list)
+                item_list = [item for item in item_prompts.keys()
+                             if item != "CompleteMakeOverAI"]
+                st.session_state.selected_item = st.selectbox(
+                    "Choose an item to add:", item_list)
             else:
                 st.session_state.selected_item = None
 
@@ -249,7 +271,8 @@ class InteractiveImageApp:
 
                     # Resize the mask to the original image size
                     width, height = st.session_state.current_image.size
-                    mask_image = mask_image.resize((width, height), resample=Image.NEAREST)
+                    mask_image = mask_image.resize(
+                        (width, height), resample=Image.NEAREST)
                     # Save the mask locally with a timestamp
                     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                     mask_dir = os.path.join("saved_masks")
@@ -299,7 +322,7 @@ class InteractiveImageApp:
                         prompt = item_prompts["CompleteMakeOverAI"]["prompt"]
                         negative_prompt = item_prompts["CompleteMakeOverAI"]["negative_prompt"]
 
-                        #Call the in-painting API
+                        # Call the in-painting API
                         response = self.api_client.inpaint_image(
                             prompt=prompt,
                             negative_prompt=negative_prompt,
@@ -311,10 +334,12 @@ class InteractiveImageApp:
                     if response.status_code == 200:
                         try:
                             # Open and store the generated image
-                            output_image = Image.open(BytesIO(response.content))
+                            output_image = Image.open(
+                                BytesIO(response.content))
                             st.success("Image processed successfully!")
                             # Save the current image to history
-                            st.session_state.image_history.append(st.session_state.current_image.copy())
+                            st.session_state.image_history.append(
+                                st.session_state.current_image.copy())
                             # Update the current image with the generated image
                             st.session_state.current_image = output_image.copy()
                             # Update state to enable additional actions
@@ -322,9 +347,11 @@ class InteractiveImageApp:
                             st.session_state.image_update_counter += 1
                             st.experimental_rerun()
                         except Exception as e:
-                            st.error(f"Failed to process the generated image: {e}")
+                            st.error(
+                                f"Failed to process the generated image: {e}")
                     else:
-                        st.error(f"Error: {response.status_code} - {response.text}")
+                        st.error(
+                            f"Error: {response.status_code} - {response.text}")
 
                     # Clean up temporary files
                     os.remove(image_path)
