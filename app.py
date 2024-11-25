@@ -203,7 +203,6 @@ class InteractiveImageApp:
 
         # Create the drawable canvas
         self.canvas_result = st_canvas(
-            fill_color="rgba(255, 255, 255, 0.3)",  # Transparent fill color for drawing
             stroke_width=st.session_state.stroke_width,
             stroke_color="#FFFFFF",
             background_image=resized_image,
