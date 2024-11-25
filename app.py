@@ -15,8 +15,7 @@ from prompts import item_prompts
 load_dotenv()
 
 # Retrieve the API key from environment variables
-API_KEY = os.getenv('STABILITY_API_KEY')  # Ensure your .env file has 'STABILITY_API_KEY'
-
+API_KEY = st.secrets["STABILITY_AI"]
 # Set the app to wide mode
 st.set_page_config(layout="wide")
 
