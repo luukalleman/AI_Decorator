@@ -25,6 +25,7 @@ def load_css():
 
 # Call this function at the beginning of your app
 load_css()
+
 class InteractiveImageApp:
     def __init__(self, api_key):
         self.api_client = StabilityAIClient(api_key)
@@ -168,22 +169,39 @@ class InteractiveImageApp:
             st.experimental_rerun()
         else:
             st.warning("No changes to undo.")
+            
     def display_canvas(self):
-        desired_width = 1000  # Desired width for the image
-        width, height = st.session_state.current_image.size
+        if st.session_state.current_image is None:
+            st.warning("No image is loaded for the canvas.")
+            return
 
-        # Calculate scaling factor to resize the image and canvas
-        scaling_factor = desired_width / width
+        # Debugging: Check image properties
+        original_width, original_height = st.session_state.current_image.size
+        st.write(f"Original image size: {original_width}x{original_height}")
+
+        # Set desired canvas width and calculate height
+        desired_width = 1000  # Adjust this as needed
+        scaling_factor = desired_width / original_width
         canvas_width = desired_width
-        canvas_height = int(height * scaling_factor)
+        canvas_height = int(original_height * scaling_factor)
+
+        # Debugging: Check resized canvas dimensions
+        st.write(f"Resized canvas size: {canvas_width}x{canvas_height}")
 
         # Resize the current image for display on the canvas
-        resized_image = st.session_state.current_image.resize((canvas_width, canvas_height))
+        try:
+            resized_image = st.session_state.current_image.resize((canvas_width, canvas_height))
+        except Exception as e:
+            st.error(f"Error resizing image: {e}")
+            return
 
         # Generate a unique key for the canvas based on the image update counter
         canvas_key = f"canvas_{st.session_state.image_update_counter}"
 
-        # Create the canvas
+        # Debugging: Ensure resized image is created
+        st.image(resized_image, caption="Resized Image Preview", use_column_width=True)
+
+        # Create the drawable canvas
         self.canvas_result = st_canvas(
             fill_color="rgba(255, 255, 255, 0.3)",  # Transparent fill color for drawing
             stroke_width=st.session_state.stroke_width,
@@ -195,6 +213,12 @@ class InteractiveImageApp:
             drawing_mode="freedraw",
             key=canvas_key,
         )
+
+        # Add a debug message if the canvas is ready
+        if self.canvas_result:
+            st.info("Canvas loaded successfully. Start drawing!")
+        else:
+            st.error("Canvas failed to initialize.")
 
     def select_action(self):
         if not st.session_state.has_generated_image:
