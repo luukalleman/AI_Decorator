@@ -62,7 +62,7 @@ class InteractiveImageApp:
         with st.sidebar:
             # Add company image
             # Update the path
-            st.image("assets/logo_KRK.png", use_container_width=True)
+            st.image("assets/logo_KRK.png", use_column_width=True)
             st.markdown(
                 "<h2 style='color: var(--highlight-text-color2);'>PhotoShoot Options</h2>", unsafe_allow_html=True)
 
@@ -180,7 +180,6 @@ class InteractiveImageApp:
             st.rerun()        
         else:
             st.warning("No changes to undo.")
-
     def display_canvas(self):
         # Ensure there is a current image in session state
         if st.session_state.current_image is None:
@@ -188,17 +187,29 @@ class InteractiveImageApp:
             return
 
         # Get dimensions of the current image
-        width, height = st.session_state.current_image.size
+        original_width, original_height = st.session_state.current_image.size
 
-        # Add canvas with the same dimensions as the uploaded image
+        # Calculate scaling factor if the width exceeds 1000px
+        if original_width > 1000:
+            scaling_factor = 1000 / original_width
+            canvas_width = 1000
+            canvas_height = int(original_height * scaling_factor)
+        else:
+            canvas_width = original_width
+            canvas_height = original_height
+
+        # Resize the image to fit within 1000px width if needed
+        resized_image = st.session_state.current_image.resize((canvas_width, canvas_height))
+
+        # Add canvas with the resized image dimensions
         try:
             self.canvas_result = st_canvas(
                 fill_color="rgba(255, 255, 255, 0.3)",  # Transparent fill color
                 stroke_width=st.session_state.stroke_width,
                 stroke_color="#FFFFFF",
-                background_image=st.session_state.current_image,  # Use uploaded image as background
-                height=height,
-                width=width,
+                background_image=resized_image,  # Use resized image as background
+                height=canvas_height,
+                width=canvas_width,
                 drawing_mode="freedraw",
                 key=f"canvas_{st.session_state.image_update_counter}",  # Unique key for refreshing canvas
             )
