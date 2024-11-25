@@ -182,40 +182,27 @@ class InteractiveImageApp:
             st.warning("No changes to undo.")
 
     def display_canvas(self):
-        static_image_path = "assets/logo_KRK.png"
-
-        # Ensure the static image exists
-        if not os.path.exists(static_image_path):
-            st.error(f"Static image not found at: {static_image_path}")
+        # Ensure there is a current image in session state
+        if st.session_state.current_image is None:
+            st.error("No image uploaded. Please upload an image to proceed.")
             return
 
-        try:
-            static_image = Image.open(static_image_path).convert("RGBA")
-        except Exception as e:
-            st.error(f"Error loading static image: {e}")
-            return
+        # Get dimensions of the current image
+        width, height = st.session_state.current_image.size
 
-        # Resize image for canvas
-        desired_width = 1000
-        width, height = static_image.size
-        scaling_factor = desired_width / width
-        canvas_width = desired_width
-        canvas_height = int(height * scaling_factor)
-        resized_image = static_image.resize((canvas_width, canvas_height))
-
-        # Add canvas with the resized static image
+        # Add canvas with the same dimensions as the uploaded image
         try:
             self.canvas_result = st_canvas(
-                fill_color="rgba(255, 255, 255, 0.3)",
+                fill_color="rgba(255, 255, 255, 0.3)",  # Transparent fill color
                 stroke_width=st.session_state.stroke_width,
                 stroke_color="#FFFFFF",
-                background_image=resized_image,
-                height=canvas_height,
-                width=canvas_width,
+                background_image=st.session_state.current_image,  # Use uploaded image as background
+                height=height,
+                width=width,
                 drawing_mode="freedraw",
-                key="static_image_canvas",
+                key=f"canvas_{st.session_state.image_update_counter}",  # Unique key for refreshing canvas
             )
-            st.success("Canvas loaded successfully with static image.")
+            st.success("Canvas loaded successfully.")
         except Exception as e:
             st.error(f"Error initializing canvas: {e}")
 
