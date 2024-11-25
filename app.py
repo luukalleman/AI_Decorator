@@ -89,8 +89,7 @@ class InteractiveImageApp:
                     st.session_state.action = "CompleteMakeOverAI"
                     st.session_state.selected_item = None
                     st.session_state.uploaded_image = None  # Reset uploaded image
-                    st.experimental_rerun()
-
+                    st.rerun()
             # Add buttons for other functionalities if an image is uploaded
             if st.session_state.current_image is not None:
                 # Separator for better organization
@@ -98,8 +97,7 @@ class InteractiveImageApp:
 
                 if st.button("Refresh Canvas"):
                     st.session_state.image_update_counter += 1
-                    st.experimental_rerun()
-
+                    st.rerun()
                 if st.session_state.image_history:
                     if st.button("Undo Last Change"):
                         # Push current image to redo stack
@@ -125,8 +123,7 @@ class InteractiveImageApp:
 
                         # Increment the image update counter to refresh the canvas
                         st.session_state.image_update_counter += 1
-                        st.experimental_rerun()
-
+                        st.rerun()
                 if st.button("Download Image"):
                     if self.canvas_result and self.canvas_result.image_data is not None:
                         # Convert canvas data to image
@@ -161,8 +158,7 @@ class InteractiveImageApp:
                 st.session_state.image_history = []
                 st.session_state.has_generated_image = False
                 # Rerun to refresh the canvas with the new image
-                st.experimental_rerun()
-
+                st.rerun()
         if st.session_state.current_image:
             # Show the drawable canvas
             self.display_canvas()
@@ -181,7 +177,7 @@ class InteractiveImageApp:
             # Clear the canvas data
             st.session_state.canvas_data = None
             # Rerun to update the canvas with the previous image
-            st.experimental_rerun()
+            st.rerun()        
         else:
             st.warning("No changes to undo.")
 
@@ -196,7 +192,7 @@ class InteractiveImageApp:
 
         # Load the static image
         try:
-            static_image = Image.open(static_image_path).convert("RGB")
+            static_image = Image.open(static_image_path).convert("RGBA")
         except Exception as e:
             st.error(f"Error loading static image: {e}")
             return
@@ -345,7 +341,7 @@ class InteractiveImageApp:
                             # Update state to enable additional actions
                             st.session_state.has_generated_image = True
                             st.session_state.image_update_counter += 1
-                            st.experimental_rerun()
+                            st.rerun()                       
                         except Exception as e:
                             st.error(
                                 f"Failed to process the generated image: {e}")
