@@ -41,9 +41,9 @@ class InteractiveImageApp:
         if 'current_mask' not in st.session_state:
             st.session_state.current_mask = None
         if 'image_update_counter' not in st.session_state:
-            st.session_state.image_update_counter = 0  # Counter to force canvas refresh
+            st.session_state.image_update_counter = 0  # Initialize the counter
         if 'image_history' not in st.session_state:
-            st.session_state.image_history = []  # List to store history of images
+            st.session_state.image_history = []  # Initialize the history
         if 'has_generated_image' not in st.session_state:
             st.session_state.has_generated_image = False  # Track if generation has been made
         if 'action' not in st.session_state:
