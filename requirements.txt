@@ -1,4 +1,4 @@
-streamlit==1.27.2
+streamlit
 streamlit-drawable-canvas>=0.9.1
 pillow>=9.0.0
 python-dotenv>=1.0.0
