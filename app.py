@@ -57,7 +57,7 @@ class InteractiveImageApp:
     def setup_sidebar(self):
         with st.sidebar:
             # Add company image
-            st.image("logo_KRK.png", use_column_width=True)  # Update the path
+            st.image("assets/logo_KRK.png", use_column_width=True)  # Update the path
             st.markdown("<h2 style='color: var(--highlight-text-color2);'>PhotoShoot Options</h2>", unsafe_allow_html=True)
 
             # Show "Upload Image" or "Start New Photoshoot" based on the current state
