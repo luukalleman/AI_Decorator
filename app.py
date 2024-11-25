@@ -171,60 +171,56 @@ class InteractiveImageApp:
             st.warning("No changes to undo.")
             
     def display_canvas(self):
-        if st.session_state.current_image is None:
-            st.warning("No image is loaded for the canvas.")
+        # Use the static image path
+        static_image_path = "assets/logo_KRK.png"
+
+        # Check if the file exists
+        if not os.path.exists(static_image_path):
+            st.error(f"Static image not found at: {static_image_path}")
             return
 
-        # Debugging: Check original image size
-        original_width, original_height = st.session_state.current_image.size
-        st.write(f"Original image size: {original_width}x{original_height}")
+        # Load the static image
+        try:
+            static_image = Image.open(static_image_path).convert("RGBA")
+        except Exception as e:
+            st.error(f"Error loading static image: {e}")
+            return
 
-        # Set desired canvas width and calculate corresponding height
+        # Set desired canvas dimensions
         desired_width = 1000  # Adjust as needed
-        scaling_factor = desired_width / original_width
+        width, height = static_image.size
+        scaling_factor = desired_width / width
         canvas_width = desired_width
-        canvas_height = int(original_height * scaling_factor)
+        canvas_height = int(height * scaling_factor)
 
-        # Debugging: Confirm calculated canvas dimensions
-        st.write(f"Canvas size: {canvas_width}x{canvas_height}")
+        # Resize the static image for canvas
+        resized_image = static_image.resize((canvas_width, canvas_height))
 
-        # Resize the current image for the canvas
-        try:
-            resized_image = st.session_state.current_image.resize((canvas_width, canvas_height))
-            # Convert to RGBA (needed for st_canvas)
-            resized_image = resized_image.convert("RGBA")
-        except Exception as e:
-            st.error(f"Error resizing image: {e}")
-            return
+        # Debug: Show the static image preview
+        st.image(resized_image, caption="Static Image for Canvas", use_column_width=True)
 
-        # Display resized image as a preview (for debugging)
-        st.image(resized_image, caption="Preview of Image for Canvas", use_column_width=True)
+        # Generate a unique key for the canvas
+        canvas_key = "static_image_canvas"
 
-        # Generate a unique key for the canvas based on image updates
-        canvas_key = f"canvas_{st.session_state.image_update_counter}"
+        # Add the canvas
+        self.canvas_result = st_canvas(
+            fill_color="rgba(255, 255, 255, 0.3)",  # Transparent fill color for drawing
+            stroke_width=st.session_state.stroke_width,
+            stroke_color="#FFFFFF",
+            background_image=resized_image,  # Use the static image as the background
+            update_streamlit=True,
+            height=canvas_height,
+            width=canvas_width,
+            drawing_mode="freedraw",
+            key=canvas_key,
+        )
 
-        # Debugging: Check if resized image is passed to the canvas
-        try:
-            # Create the interactive canvas
-            self.canvas_result = st_canvas(
-                fill_color="rgba(255, 165, 0, 0.3)",  # Fixed fill color with some opacity
-                stroke_width=st.session_state.stroke_width,
-                stroke_color="#FFFFFF",
-                background_image=resized_image,
-                update_streamlit=True,  # Enable real-time updates
-                height=canvas_height,
-                width=canvas_width,
-                drawing_mode="freedraw",
-                key=canvas_key,
-            )
+        # Debugging feedback
+        if self.canvas_result:
+            st.success("Canvas loaded successfully with static image.")
+        else:
+            st.error("Canvas initialization failed.")
 
-            if self.canvas_result:
-                st.info("Canvas loaded successfully. Start drawing!")
-            else:
-                st.error("Canvas failed to initialize.")
-        except Exception as e:
-            st.error(f"Error initializing canvas: {e}")
-            
     def select_action(self):
         if not st.session_state.has_generated_image:
             st.session_state.action = "CompleteMakeOverAI"
